@@ -1,4 +1,23 @@
-# FAST Desktop Tool: Asistente de Análisis de Sistemas 🚀
+# FAST Tool Community :: Asistente de Análisis de Sistemas 🚀
+
+FAST Tool Community 1.0 es la edición comunitaria y educativa de
+FAST Tool, una aplicación de escritorio para guiar el análisis,
+modelado y documentación de sistemas de información.
+
+Esta versión se distribuye bajo la licencia
+[GNU Affero General Public License v3.0](LICENSE).
+
+El desarrollo de futuras funciones profesionales y comerciales se
+realizará en una línea independiente denominada FAST Tool Pro.
+
+> FAST Tool Community está orientado a estudiantes, profesores,
+> analistas de sistemas, desarrolladores y consultores independientes.
+
+Esta versión se distribuye bajo la licencia GNU Affero General
+Public License v3.0 (AGPLv3).
+
+El desarrollo de nuevas funciones comerciales se realizará
+en una línea independiente llamada FAST Tool Pro.
 
 **FAST Desktop Tool** es una aplicación de escritorio (stand-alone) de código abierto, diseñada para guiar a estudiantes, analistas y desarrolladores paso a paso en la aplicación de la metodología **FAST** (Framework for the Application of Systems Thinking) propuesta por Whitten, Bentley y Barlow.
 
