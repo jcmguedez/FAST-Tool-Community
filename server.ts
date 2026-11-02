@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import Database from 'better-sqlite3';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -13,8 +14,29 @@ const PORT = parseInt(process.env.PORT || '3000', 10);
 app.use(cors());
 app.use(express.json());
 
-// 1. Conexión a SQLite con ruta absoluta garantizada
-const DB_PATH = path.resolve(__dirname, 'database.db');
+// 1. Manejo de base de datos SQLite en Producción Electron vs Desarrollo Local
+// En producción de Electron se usa app.getPath('userData') (AppData/Roaming en Windows)
+function getDatabasePath(): string {
+  const electronUserData = process.env.ELECTRON_USER_DATA;
+  if (electronUserData) {
+    if (!fs.existsSync(electronUserData)) {
+      try {
+        fs.mkdirSync(electronUserData, { recursive: true });
+      } catch (err) {
+        console.error('No se pudo crear el directorio userData:', err);
+      }
+    }
+    const productionDb = path.join(electronUserData, 'database.db');
+    console.log(`🚀 [Electron Producción] Base de datos en AppData: ${productionDb}`);
+    return productionDb;
+  }
+
+  const localDb = path.resolve(__dirname, 'database.db');
+  console.log(`💻 [Desarrollo Local] Base de datos en directorio raíz: ${localDb}`);
+  return localDb;
+}
+
+const DB_PATH = getDatabasePath();
 const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');

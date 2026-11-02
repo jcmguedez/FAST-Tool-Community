@@ -1,21 +1,38 @@
-import express from 'express';
-import cors from 'cors';
-import Database from 'better-sqlite3';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const express = require('express');
+const cors = require('cors');
+const Database = require('better-sqlite3');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
-const PORT = 3000;
+const PORT = parseInt(process.env.PORT || '3000', 10);
 
 // 1. Middlewares: CORS y JSON body parser
 app.use(cors());
 app.use(express.json());
 
 // 2. Conexión a la base de datos local SQLite con ruta absoluta garantizada
-const DB_PATH = path.resolve(__dirname, 'database.db');
+function getDatabasePath() {
+  const electronUserData = process.env.ELECTRON_USER_DATA;
+  if (electronUserData) {
+    if (!fs.existsSync(electronUserData)) {
+      try {
+        fs.mkdirSync(electronUserData, { recursive: true });
+      } catch (err) {
+        console.error('No se pudo crear el directorio userData:', err);
+      }
+    }
+    const productionDb = path.join(electronUserData, 'database.db');
+    console.log(`🚀 [Electron Producción] Base de datos en AppData: ${productionDb}`);
+    return productionDb;
+  }
+
+  const localDb = path.resolve(__dirname, 'database.db');
+  console.log(`💻 [Desarrollo Local] Base de datos en directorio raíz: ${localDb}`);
+  return localDb;
+}
+
+const DB_PATH = getDatabasePath();
 const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON'); // Asegurar integridad referencial

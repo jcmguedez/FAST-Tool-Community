@@ -1,17 +1,25 @@
 {
   "name": "react-example",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "FAST Desktop Tool - asistente de análisis de sistemas",
+  "author": "FAST Desktop Tool",
+  "main": "dist-electron/main.js",
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
     "dev:local": "concurrently \"npm run server\" \"npm run dev:front\"",
     "dev:front": "vite",
-    "server": "node server.js",
+    "server": "node server.cjs",
     "build": "vite build",
-    "start": "node server.ts",
+    "build:electron": "esbuild electron/main.ts --bundle --platform=node --format=esm --outfile=dist-electron/main.js --external:electron",
+    "build:app": "npm run build && npm run build:electron",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "build:win": "npm run build:app && electron-builder --win nsis --x64",
+    "rebuild:sqlite": "electron-builder install-app-deps",
+    "start": "tsx server.ts",
     "preview": "vite preview",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist dist-electron release",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
@@ -43,9 +51,54 @@
     "@types/react-dom": "^19.3.0",
     "autoprefixer": "^10.4.21",
     "concurrently": "^10.0.6",
-    "esbuild": "^0.25.0",
+    "electron": "^39.0.0",
+    "electron-builder": "^26.18.0",
+    "esbuild": "^0.28.0",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.21.0",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "wait-on": "^9.5.1"
+  },
+  "build": {
+    "appId": "com.fast.desktoptool",
+    "productName": "FAST Desktop Tool",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "**/node_modules/better-sqlite3/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "server.cjs",
+        "to": "app/server.cjs"
+      },
+      {
+        "from": "dist",
+        "to": "app/dist"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "FAST Desktop Tool"
+    }
   }
 }
